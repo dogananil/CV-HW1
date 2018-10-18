@@ -11,7 +11,8 @@ from PyQt5.QtGui import QIcon, QPixmap, QPalette,QImage
 from PyQt5.QtCore import pyqtSlot, Qt
 import cv2
 import matplotlib.pyplot as plt
- 
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 class App(QMainWindow):
     
     def __init__(self):
@@ -41,6 +42,11 @@ class App(QMainWindow):
         
         self.image = None
         self.image2 = None
+        self.figure = Figure()
+        self.figure2 = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.canvas2 = FigureCanvas(self.figure2)
+        self.eq = None
         self.qImg = None
         self.qImg2 = None
         self.pixmap01 = None
@@ -48,6 +54,7 @@ class App(QMainWindow):
        
         self.createActions()
         self.createMenu()
+        self.createToolBar()
         
         self.setWindowTitle("Histogram")
         self.showMaximized()
@@ -61,6 +68,8 @@ class App(QMainWindow):
         self.open_targetAct.triggered.connect(self.open_Target)
         self.exitAct = QAction(' &Exit', self)
         self.exitAct.triggered.connect(self.exit)
+        self.equalize = QAction(' &Equalize Histogram',self)
+        self.equalize.triggered.connect(self.equalizeHistogram)
     
     def createMenu(self):
         self.mainMenu = self.menuBar()
@@ -68,7 +77,11 @@ class App(QMainWindow):
         self.fileMenu.addAction(self.open_inputAct)
         self.fileMenu.addAction(self.open_targetAct)
         self.fileMenu.addAction(self.exitAct)
-    
+    def createToolBar(self):
+        self.eq = self.addToolBar("Equalize Histogram")
+        self.eq.addAction(self.equalize)
+    def equalizeHistogram(self):
+        print("button hazır")
     def createHistogram(self):
         red = self.image[:,:,2]
         green = self.image[:,:,1]
@@ -76,14 +89,61 @@ class App(QMainWindow):
         width,height = blue.shape
         
         blueArray = [0]*256
+        redArray = [0]*256
+        greenArray = [0]*256
         
         for w in range(0,width):
             for h in range(0,height):
                 temp = blue[w][h]
                 blueArray[temp]+=1
-        plot1 = plt.bar(range(256),blueArray,color = 'blue')
-        self.inputBox.layout().addWidget(plot1)
-    
+        for w in range(0,width):
+            for h in range(0,height):
+                temp = red[w][h]
+                redArray[temp]+=1        
+        for w in range(0,width):
+            for h in range(0,height):
+                temp = green[w][h]
+                greenArray[temp]+=1 
+        blueplot = self.figure.add_subplot(313)
+        redplot = self.figure.add_subplot(311)
+        greenplot = self.figure.add_subplot(312)
+        
+        blueplot.bar(range(256),blueArray,color = 'blue')
+        redplot.bar(range(256),redArray,color = 'red')
+        greenplot.bar(range(256),greenArray,color = 'green')
+        self.canvas.draw()
+        self.inputBox.layout().addWidget(self.canvas)
+    def createHistogram2(self):
+        red = self.image2[:,:,2]
+        green = self.image2[:,:,1]
+        blue = self.image2[:,:,0]
+        width,height = blue.shape
+        
+        blueArray = [0]*256
+        redArray = [0]*256
+        greenArray = [0]*256
+        
+        for w in range(0,width):
+            for h in range(0,height):
+                temp = blue[w][h]
+                blueArray[temp]+=1
+        for w in range(0,width):
+            for h in range(0,height):
+                temp = red[w][h]
+                redArray[temp]+=1        
+        for w in range(0,width):
+            for h in range(0,height):
+                temp = green[w][h]
+                greenArray[temp]+=1 
+        blueplot = self.figure2.add_subplot(313)
+        redplot = self.figure2.add_subplot(311)
+        greenplot = self.figure2.add_subplot(312)
+        
+        blueplot.bar(range(256),blueArray,color = 'blue')
+        redplot.bar(range(256),redArray,color = 'red')
+        greenplot.bar(range(256),greenArray,color = 'green')
+        self.canvas2.draw()
+        self.targetBox.layout().addWidget(self.canvas2)
     def open_Input(self):
         #fileName, _ = QFileDialog.getOpenFileName(self, "Open File",QDir.currentPath())
         fileName, _ = QFileDialog.getOpenFileName(self, 'Open Input', '.')
@@ -128,6 +188,7 @@ class App(QMainWindow):
         imageLabel.setAlignment(Qt.AlignCenter)
         
         self.targetBox.layout().addWidget(imageLabel)
+        self.createHistogram2()
     
     def exit(self):
         sys.exit()
