@@ -56,6 +56,7 @@ class App(QMainWindow):
         self.eq = None
         self.qImg = None
         self.qImg2 = None
+        self.qImgResult = None
         self.pixmap01 = None
         self.pixmap_image = None
        
@@ -196,8 +197,11 @@ class App(QMainWindow):
         self.image[:,:,2] = matchRed
         self.image[:,:,1] = matchGreen
         self.image[:,:,0] = matchBlue
+        heightI,widthI,channelsI = self.image.shape
+        bytesPerLine = channelsI * widthI
+        self.qImgResult = QImage(self.image.data,widthI,heightI,bytesPerLine,QImage.Format_RGB888).rgbSwapped()
         imageLabel = QLabel('image')
-        imageLabel.setPixmap(QPixmap.fromImage(self.qImg))
+        imageLabel.setPixmap(QPixmap.fromImage(self.qImgResult))
         imageLabel.setAlignment(Qt.AlignCenter)
         self.resultBox.layout().addWidget(imageLabel)
         
