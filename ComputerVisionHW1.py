@@ -89,6 +89,7 @@ class App(QMainWindow):
         self.eq = self.addToolBar("Equalize Histogram")
         self.eq.addAction(self.equalize)
     def equalizeHistogram(self):
+##################   RED PART #########################################################
         sumArray = np.sum(self.redArray)
         self.cdf = np.cumsum(self.redArray)/sumArray
         
@@ -103,21 +104,16 @@ class App(QMainWindow):
             self.lookupRed[i] = j
         
         matchRed =np.zeros(self.red.shape)
-      #  h=0
-       # w=0
-        #for w in range(0,self.width):
-         #   matchRed.append([])
-          #  h=0
-           # for h in range(0,self.height):
-            #    matchRed[w].append(self.lookupRed[self.red[w][h]])
+        
         h=0
         w=0
         for w in range(0,self.width):
             h=0
             for h in range(0,self.height):
                 matchRed[w][h] = self.lookupRed[self.red[w][h]]
-                
-                
+        
+              
+        
         matchRedH = [0]*256
         h=0
         w=0
@@ -126,11 +122,8 @@ class App(QMainWindow):
                 tempR = matchRed[w][h]
                 matchRedH[int(tempR)]+=1 
         
-        #plt.plot(matchRed)
-        #plt.show()        
-        
-        #self.tmp_im[:,:,2]= matchRed
-  ##########################################################################
+
+  ###################   GREEN PART   #######################################################
         sumArray2 = np.sum(self.greenArray)
         self.cdfG = np.cumsum(self.greenArray)/sumArray2
         
@@ -153,6 +146,8 @@ class App(QMainWindow):
             h=0
             for h in range(0,self.height):
                 matchGreen[w][h] = self.lookupGreen[self.green[w][h]]
+        
+        
          
         matchGreenH = [0]*256
         h=0
@@ -161,8 +156,8 @@ class App(QMainWindow):
             for h in range(0,self.height):
                 tempG = matchGreen[w][h]
                 matchGreenH[int(tempG)]+=1 
-        #self.tmp_im[:,:,1]= matchGreen
-##########################################################################
+
+#####################   BLUE PART   #####################################################
         sumArray3 = np.sum(self.blueArray)
         self.cdfB = np.cumsum(self.blueArray)/sumArray3
         
@@ -185,7 +180,8 @@ class App(QMainWindow):
             h=0
             for h in range(0,self.height):
                 matchBlue[w][h] = self.lookupBlue[self.blue[w][h]]
-       
+
+        
         matchBlueH = [0]*256
         h=0
         w=0
@@ -194,6 +190,8 @@ class App(QMainWindow):
                 tempB = matchBlue[w][h]
                 matchBlueH[int(tempB)]+=1          
        # self.tmp_im[:,:,0]= matchBlue
+       
+###############################################################################
         self.image[:,:,2] = matchRed
         self.image[:,:,1] = matchGreen
         self.image[:,:,0] = matchBlue
@@ -280,15 +278,14 @@ class App(QMainWindow):
         fileName, _ = QFileDialog.getOpenFileName(self, 'Open Input', '.')
         if fileName:
             self.image = cv2.imread(fileName)
-            height,width,channels = self.image.shape
-            bytesPerLine = 3 * width
+            heightI,widthI,channelsI = self.image.shape
+            bytesPerLine = 3 * widthI
             if not self.image.data:
                 QMessageBox.information(self, "Image Viewer",
                         "Cannot load %s." % fileName)
                 return
             
-        self.qImg = QImage(self.image.data,width,height,bytesPerLine,QImage.Format_RGB888).rgbSwapped()
-        #self.pixmap01 = QPixmap.fromImage(self.qImg)
+        self.qImg = QImage(self.image.data,widthI,heightI,bytesPerLine,QImage.Format_RGB888).rgbSwapped()
         
         imageLabel = QLabel('image')
         imageLabel.setPixmap(QPixmap.fromImage(self.qImg))
@@ -296,7 +293,6 @@ class App(QMainWindow):
         
         self.inputBox.layout().addWidget(imageLabel)
         self.createHistogram()   
-       # self.updateActions()
 
        
     
@@ -304,15 +300,14 @@ class App(QMainWindow):
         fileName, _ = QFileDialog.getOpenFileName(self, 'Open Input', '.')
         if fileName:
             self.image2 = cv2.imread(fileName)
-            height,width,channels = self.image2.shape
-            bytesPerLine = 3 * width
+            heightT,widthT,channelsT = self.image2.shape
+            bytesPerLine = 3 * widthT
             if not self.image2.data:
                 QMessageBox.information(self, "Image Viewer",
                         "Cannot load %s." % fileName)
                 return
             
-        self.qImg2 = QImage(self.image2.data,width,height,bytesPerLine,QImage.Format_RGB888).rgbSwapped()
-        #self.pixmap01 = QPixmap.fromImage(self.qImg)
+        self.qImg2 = QImage(self.image2.data,widthT,heightT,bytesPerLine,QImage.Format_RGB888).rgbSwapped()
         
         imageLabel = QLabel('image')
         imageLabel.setPixmap(QPixmap.fromImage(self.qImg2))
